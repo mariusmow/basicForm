@@ -1,0 +1,13 @@
+{
+    "name": "marius/basic-form",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Marius\\BasicForm\\": "src/"
+        }
+    },
+    "require": {
+      "ext-pdo": "*",
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
