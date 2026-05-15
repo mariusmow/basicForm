@@ -36,9 +36,13 @@ const submitForm = async () => {
     }
 
     if (status === 422) {
+      showNotification(
+          'Form validation failed. Please check the fields and try again.',
+          'error'
+      );
       errors.value = data?.errors ?? {}
     } else if (data?.status === 'success') {
-      showNotification(data.message || 'Your message has been saved.')
+      showNotification(data.message || 'Your message has been saved.');
       form.value = {name: '', email: '', phone: '', message: ''}
       emit('submitted')
     } else {

@@ -15,6 +15,7 @@ class Validator
                     $value = $data[$field] ?? '';
                     foreach ($field_rules as $field_rule) {
                         $field_option = null;
+
                         if (str_contains($field_rule, ':')) {
                             $field_options = explode(':', $field_rule);
                             $field_rule = $field_options[0];
@@ -24,61 +25,50 @@ class Validator
                         switch ($field_rule) {
                             case "min" :
                                 if ((int)$field_option == 0) {
-                                    throw new \Exception("Missing or invalid MIN rule option for $field");
+                                    throw new \Exception(ucfirst($field) . " missing or invalid MIN rule option for $field");
                                 }
 
                                 if (strlen(trim($value)) < $field_option) {
-                                    if (isset($messages[$field])) {
-                                        $errors[$field][] = $messages[$field];
-                                    } else {
-                                        $errors[$field][] = ucfirst($field) . ' must be at least ' . $field_option . ' characters. ';
-                                    }
+                                    $errors[$field][] = self::setMessage($messages, $field, $field_rule, ucfirst($field) . " must be at least $field_option  characters.");
                                 }
                                 break;
                             case "max" :
                                 if ((int)$field_option == 0) {
-                                    throw new \Exception("Missing or invalid MAX rule option for $field.");
+                                    throw new \Exception(ucfirst($field) . " missing or invalid MAX rule option for $field.");
                                 }
 
                                 if (strlen(trim($value)) > $field_option) {
-                                    if (isset($messages[$field])) {
-                                        $errors[$field][] = $messages[$field];
-                                    } else {
-                                        $errors[$field][] = ucfirst($field) . ' may not exceed ' . $field_option . ' characters. ';
-                                    }
+                                    $errors[$field][] = self::setMessage($messages, $field, $field_rule, ucfirst($field) . " may not exceed $field_option characters.");
                                 }
                                 break;
                             case "required" :
                                 if (empty($value)) {
-                                    if (isset($messages[$field])) {
-                                        $errors[$field][] = $messages[$field];
-                                    } else {
-                                        $errors[$field][] = ucfirst($field) . ' is required. ';
-                                    }
+                                    $errors[$field][] = self::setMessage($messages, $field, $field_rule, ucfirst($field) . " is required.");
                                 }
                                 break;
                             case "email" :
                                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                                    if (isset($messages[$field])) {
-                                        $errors[$field][] = $messages[$field];
-                                    } else {
-                                        $errors[$field][] = ucfirst($field) . ' is not a valid email address. ';
-                                    }
+                                    $errors[$field][] = self::setMessage($messages, $field, $field_rule, ucfirst($field) . " is not a valid email address. ");
                                 }
                                 break;
-                            case "regex" :
+                            case "fn" :
                                 if (empty($field_option)) {
-                                    throw new \Exception("Missing or invalid REGEX rule option.");
+                                    throw new \Exception(ucfirst($field) . " missing or invalid function rule option.");
                                 }
 
-                                if (!preg_match($field_option, $value)) {
-                                    if (isset($messages[$field])) {
-                                        $errors[$field][] = $messages[$field];
-                                    } elseif (isset($messages[$field . '.' . $field_rule])) {
-                                        $errors[$field][] = $messages[$field . '.' . $field_rule];
+                                if (class_exists($field_option)) {
+                                    $customRule = new $field_option();
+                                    if (method_exists($field_option, 'validate')) {
+                                        $isValid = $customRule->validate($value);
                                     } else {
-                                        $errors[$field][] = 'Please provide a valid "' . $field . '".';
+                                        throw new \Exception(ucfirst($field) . " is not a valid function.");
                                     }
+                                } else {
+                                    throw new \Exception(ucfirst($field) . " is not a valid function for custom rule.");
+                                }
+
+                                if (!$isValid) {
+                                    $errors[$field][] = self::setMessage($messages, $field, $field_rule, 'Please provide a valid "' . $field . '".');
                                 }
                                 break;
                         }
@@ -87,7 +77,7 @@ class Validator
             }
 
             if (!empty($errors)) {
-                http_response_code(422); // Unprocessable Entity
+                http_response_code(422);
                 echo json_encode([
                     'status' => 'error',
                     'message' => 'Validation failed',
@@ -100,6 +90,17 @@ class Validator
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
             exit();
+        }
+    }
+
+    private static function setMessage(array $messages, string $field, string $field_rule, string $overwrite): string
+    {
+        if (isset($messages[$field])) {
+            return $messages[$field];
+        } elseif (isset($messages[$field . "." . $field_rule])) {
+            return $messages[$field . "." . $field_rule];
+        } else {
+            return $overwrite;
         }
     }
 

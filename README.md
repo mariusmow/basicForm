@@ -19,7 +19,15 @@ Validation includes South African mobile-style phone rules and server-side sanit
 
 ## Database
 
-Create a database and a `contacts` table that matches what the app expects:
+Create an empty MySQL database (name it whatever you will set as `DB_DATABASE` in `.env`), then load the schema and sample contacts:
+
+```bash
+mysql -u your_username -p your_database_name < contacts.sql
+```
+
+Add `-h 127.0.0.1` and `-P 3306` if your server is not local or uses a non-default port. The dump creates the `contacts` table and inserts demo rows so the list view has data on first load.
+
+Alternatively, create the table manually (empty database, no seed data):
 
 ```sql
 CREATE TABLE contacts (
@@ -76,6 +84,7 @@ If you see an error about a missing Vite manifest, run `npm run build` or start 
 
 | Path | Role |
 |------|------|
+| `contacts.sql` | MySQL dump: `contacts` table + sample rows |
 | `public/index.php` | Front controller, routes, session, CSRF |
 | `src/` | PHP: router, database, controllers, middleware, Vite helper |
 | `resources/js/` | Vue app and components |

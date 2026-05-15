@@ -5,6 +5,7 @@ namespace Marius\BasicForm\Controllers;
 use Marius\BasicForm\Core\Database;
 use Exception;
 use Marius\BasicForm\Core\Validator;
+use Marius\BasicForm\Validation\ValidSouthAfricanPhone;
 
 class ContactController
 {
@@ -46,7 +47,7 @@ class ContactController
             $totalPages = ceil($totalRows / $perPage);
 
             // Get paginated and filtered results
-            $sql = "SELECT * FROM contacts $whereClause ORDER BY name DESC LIMIT :limit OFFSET :offset";
+            $sql = "SELECT * FROM contacts $whereClause ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
 
             // Merge search params with pagination params
             $queryParams = array_merge($params, [
@@ -87,11 +88,11 @@ class ContactController
             [
                 'name' => ['required', 'min:2', 'max:100'],
                 'email' => ['required', 'email'],
-                'phone' => ['required', 'regex:/^(\+27|27|0)[6-8][0-9]{8}$/', 'min:10'],
+                'phone' => ['required', 'fn:'.ValidSouthAfricanPhone::class, 'min:10', 'max:12'],
                 'message' => ['required', 'min:2', 'max:255'],
             ],
             [
-                'phone.regex' => "Please provide a valid South African phone number (e.g., 071 123 4567 or +27 71 123 4567)."
+                'phone.fn' => "Please provide a valid South African phone number (e.g., 071 123 4567 or +27 71 123 4567)."
             ],
             $input
         );
@@ -101,16 +102,18 @@ class ContactController
             $sql = "INSERT INTO contacts (name, email, phone, message, created_at) 
                     VALUES (:name, :email, :phone, :message, NOW())";
 
+            $cleanPhone = preg_replace('/[\s\-\(\)]+/', '', $input['phone']);
+
             $db->query($sql, [
-                'name' => htmlspecialchars(strip_tags($input['name'])),
+                'name' => e($input['name']),
                 'email' => filter_var($input['email'], FILTER_SANITIZE_EMAIL),
-                'phone' => htmlspecialchars(strip_tags($input['phone'])),
-                'message' => htmlspecialchars(strip_tags($input['message']))
+                'phone' => e($cleanPhone),
+                'message' => e($input['message'])
             ]);
 
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Thank you! Your message has been securely saved.'
+                'message' => 'Thank you! Your message has been saved.'
             ]);
 
         } catch (Exception $e) {
