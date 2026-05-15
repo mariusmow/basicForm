@@ -1,6 +1,6 @@
 <?php
 
-namespace Marius\BasicForm\Validation;
+namespace Marius\BasicForm\Validation\Interface;
 
 interface Validation
 {

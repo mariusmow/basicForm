@@ -23,7 +23,3 @@ $router->get('/', [ContactController::class, 'index']);
 $router->get('/api/entries', [ContactController::class, 'list']);
 $router->post('/api/submit', [ContactController::class, 'store'], [VerifyCsrf::class]);
 $router->resolve();
-
-function e(string $value): string {
-    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-}

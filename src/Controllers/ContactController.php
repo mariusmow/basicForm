@@ -2,9 +2,10 @@
 
 namespace Marius\BasicForm\Controllers;
 
-use Marius\BasicForm\Core\Database;
 use Exception;
+use Marius\BasicForm\Core\Database;
 use Marius\BasicForm\Core\Validator;
+use Marius\BasicForm\Core\Xss;
 use Marius\BasicForm\Validation\ValidSouthAfricanPhone;
 
 class ContactController
@@ -105,10 +106,10 @@ class ContactController
             $cleanPhone = preg_replace('/[\s\-\(\)]+/', '', $input['phone']);
 
             $db->query($sql, [
-                'name' => e($input['name']),
+                'name' => Xss::clean($input['name']),
                 'email' => filter_var($input['email'], FILTER_SANITIZE_EMAIL),
-                'phone' => e($cleanPhone),
-                'message' => e($input['message'])
+                'phone' => Xss::clean($cleanPhone),
+                'message' => Xss::clean($input['message'])
             ]);
 
             echo json_encode([

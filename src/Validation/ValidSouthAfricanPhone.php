@@ -2,6 +2,8 @@
 
 namespace Marius\BasicForm\Validation;
 
+use Marius\BasicForm\Validation\Interface\Validation;
+
 class ValidSouthAfricanPhone implements Validation
 {
     public function validate(string $phone): bool
