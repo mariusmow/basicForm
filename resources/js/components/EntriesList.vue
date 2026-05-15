@@ -17,6 +17,9 @@ const loadEntries = async (page = 1) => {
       entries.value = res.data
       meta.value = res.meta
     }
+    else {
+      showNotification(res.message, 'error')
+    }
   } catch (err) {
     showNotification('Could not load entries', 'error')
   }

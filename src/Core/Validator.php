@@ -17,9 +17,7 @@ class Validator
                         $field_option = null;
 
                         if (str_contains($field_rule, ':')) {
-                            $field_options = explode(':', $field_rule);
-                            $field_rule = $field_options[0];
-                            $field_option = $field_options[1] ?? null;
+                            list($field_rule, $field_option) = explode(':', $field_rule);
                         }
 
                         switch ($field_rule) {

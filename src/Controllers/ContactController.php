@@ -20,7 +20,7 @@ class ContactController
         header('Content-Type: application/json');
 
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $search = isset($_GET['search']) ? Xss::clean(trim($_GET['search'])) : '';
         $perPage = 10;
         $offset = ($page - 1) * $perPage;
 
@@ -121,7 +121,7 @@ class ContactController
             http_response_code(500);
             echo json_encode([
                 'status' => 'error',
-                'message' => 'A server error occurred while saving your data.' . $e->getMessage()
+                'message' => 'Database error, please try again later.'
             ]);
         }
     }
