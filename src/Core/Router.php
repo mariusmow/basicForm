@@ -34,8 +34,17 @@ class Router
         $route = $this->routes[$method][$path] ?? null;
 
         if (!$route) {
-            header("HTTP/1.0 404 Not Found");
-            echo json_encode(['error' => 'Route not found']);
+
+            if(str_starts_with($path, '/api')) {
+                header("HTTP/1.0 404 Not Found");
+                echo json_encode(['error' => 'Route not found']);
+            }
+            else
+            {
+                http_response_code(404);
+                header('Content-Type: text/html; charset=UTF-8');
+                require __DIR__ . '/../../views/404.php';
+            }
             return;
         }
 

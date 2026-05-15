@@ -58,7 +58,7 @@ const submitForm = async () => {
 
 <template>
   <section class="bg-white p-8 rounded-xl shadow-md max-w-2xl mx-auto">
-    <h2 class="text-2xl font-bold mb-6">Contact Us</h2>
+    <h2 class="text-2xl font-bold mb-6">Contact Form</h2>
     <form class="space-y-4" @submit.prevent="submitForm">
       <div>
         <label class="block text-sm font-medium text-gray-700">Full Name</label>
